@@ -58,20 +58,20 @@
 <attributes>*
 "}"
 
-<if> ::= "if" <name_type>":"<decider>"{"<attributes>*"}""{"
+<if> ::= "if" <name_type>":"<decider>"{"<expr>"}""{"
 <attributes>*
 "}" |
-"if"":"<decider>"{"<attributes>*"}""{"
+"if"":"<decider>"{"<expr>"}""{"
 <attributes>*
 "}" |
 "if""{"
 <attributes>*
 "}"
 
-<while> ::= "while" <name_type>":"<decider>"{"<attributes>*"}""{"
+<while> ::= "while" <name_type>":"<decider>"{"<expr>"}""{"
 <attributes>*
 "}" |
-"while"":"<decider>"{"<attributes>*"}""{"
+"while"":"<decider>"{"<expr>"}""{"
 <attributes>*
 "}" |
 "while""{"
