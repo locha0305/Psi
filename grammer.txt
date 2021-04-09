@@ -36,7 +36,8 @@
 <class> |
 "give" |
 "get" |
-"statement" 
+"statement" |
+"return" |
 
 <var> ::= "var" <name_type>"{"<expr>*"}" | "var""{"<expr>*"}"
 <recv> ::= "recv" <name_type>"{""}"
@@ -57,7 +58,6 @@
 <attributes>*
 "}"
 
-
 <if> ::= "if" <name_type>":"<decider>"{"<attributes>*"}""{"
 <attributes>*
 "}" |
@@ -77,3 +77,5 @@
 "while""{"
 <attributes>*
 "}"
+
+<call> ::= "call"":"<decider>":"<decider>"{"<attributes>*"}""{""}"
