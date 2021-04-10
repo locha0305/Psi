@@ -24,6 +24,28 @@ class JumpPointer:
         self.jump += 1
 
 
+def ExprLexer(expr):
+    InExprLexerPointer = LexerPointer()
+    word = ''
+    Tokenized = []
+
+    while InExprLexerPointer.pos < len(expr):
+        char = expr[InExprLexerPointer.pos]
+        if char in Grammer.Identifier.operator:
+            Tokenized.append({'number': word})
+            Tokenized.append({'operator': char})
+            word = ''
+        else:
+            word += char
+
+        InExprLexerPointer.advance()
+
+    Tokenized.append({'number': word})
+
+    return Tokenized
+
+
+
 def lex(code):
     Tokenized = []  # lex result
     code = code.split('\n')  # split lines
@@ -81,7 +103,7 @@ def lex(code):
                         except IndexError:  # when no '{'
                             raise SyntaxError("Missing '}'")
 
-                        LineTokenizedResult.append({'type': 'var', 'name_type': name_type, 'expr': expr})
+                        LineTokenizedResult.append({'type': 'var', 'name_type': name_type, 'expr': ExprLexer(expr)})
 
                 else:  # variable assignment/class declare
 
@@ -113,7 +135,7 @@ def lex(code):
 
                         InlineLexerPointer.pos += InlineJumpPointer.jump + 1
                         InlineJumpPointer.reset()
-                        LineTokenizedResult.append({'type': 'var_assign', 'name_type': name_type, 'expr': expr})
+                        LineTokenizedResult.append({'type': 'var_assign', 'name_type': name_type, 'expr': ExprLexer(expr)})
 
                     else:
                         pass
@@ -131,8 +153,6 @@ def lex(code):
 
 
 print(lex('var some_kind_of_a_random_number{12 + 3/2 + 3}\nvar b{1.2 * 3/1.5**2||2}\na = 12+3/2'))
-
-
 
 
 
