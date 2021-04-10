@@ -40,7 +40,6 @@
 "return" |
 
 <var> ::= "var" <name_type>"{"<expr>*"}" | "var""{"<expr>*"}"
-<var
 <recv> ::= "recv" <name_type>"{""}"
 <forvar> ::= "forvar" <name_type>"{""}"
 
