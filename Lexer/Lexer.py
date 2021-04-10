@@ -36,14 +36,14 @@ def ExprLexer(expr):
             Tokenized.append({'operator': char})
             word = ''
         else:
-            word += char
+            if char != ' ':
+                word += char
 
         InExprLexerPointer.advance()
 
     Tokenized.append({'number': word})
 
     return Tokenized
-
 
 
 def lex(code):
@@ -105,43 +105,88 @@ def lex(code):
 
                         LineTokenizedResult.append({'type': 'var', 'name_type': name_type, 'expr': ExprLexer(expr)})
 
+                    elif word == 'class':  # base class declare
+
+                        word = ''
+                        name_type = ''
+
+                        InlineJumpPointer.reset()
+                        InlineLexerPointer.advance()
+
+                        try:
+                            while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != '{':
+                                if not(line[InlineLexerPointer.pos + InlineJumpPointer.jump] == ' '):
+                                    name_type += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
+                                InlineJumpPointer.advance()
+                            InlineLexerPointer.pos += InlineJumpPointer.jump + 1
+                        except IndexError:  # when no '{'
+                            raise SyntaxError("Missing '{'")
+
+                        if line[-1] == '}':  # if class declare on one line:
+                            pass
+                        else:
+                            InlineJumpPointer.reset()
+
+                            attributes = '\n'
+                            LineJumpPointer = JumpPointer()
+
+                            try:
+                                while code[LineLexerPointer.pos + LineJumpPointer.jump - 1] != '}':  # just to check for '}'
+                                    attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
+                                    LineJumpPointer.advance()
+                                LineLexerPointer.pos += LineJumpPointer.jump + 1
+                                InlineLexerPointer.reset()
+                                LineTokenizedResult.append({'type': 'class', 'name_type': name_type, 'attributes': lex(attributes)})
+                                break
+                            except IndexError:
+                                raise SyntaxError("Missing '}'")
+
+                    elif word == 'meth':  # method declare
+                        pass
+
                 else:  # variable assignment/class declare
 
                     name_type = word
-                    next_name_type = ''
-                    word = ''  # reset word
-
-                    InlineJumpPointer.reset()  # reset jump
-                    InlineLexerPointer.advance()  # to avoid adding ' '
-
-                    try:
-                        while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != ' ':
-                            next_name_type += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
-                            InlineJumpPointer.advance()
-                        InlineLexerPointer.pos += InlineJumpPointer.jump + 1
-                        InlineJumpPointer.reset()
-                    except IndexError:
-                        raise SyntaxError('{}'.format(name_type))
-
-                    if next_name_type == '=':  # variable assignment
-
-                        InlineJumpPointer.reset()
-
-                        expr = ''  # <expr>
-
-                        while InlineLexerPointer.pos + InlineJumpPointer.jump < len(line):
-                            expr += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
-                            InlineJumpPointer.advance()
-
-                        InlineLexerPointer.pos += InlineJumpPointer.jump + 1
-                        InlineJumpPointer.reset()
-                        LineTokenizedResult.append({'type': 'var_assign', 'name_type': name_type, 'expr': ExprLexer(expr)})
-
-                    else:
+                    if name_type == '':  # just empty
                         pass
+                    else:
+                        next_name_type = ''
+                        word = ''  # reset word
+
+                        InlineJumpPointer.reset()  # reset jump
+                        InlineLexerPointer.advance()  # to avoid adding ' '
+
+                        try:
+                            while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != ' ':
+                                next_name_type += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
+                                InlineJumpPointer.advance()
+                            InlineLexerPointer.pos += InlineJumpPointer.jump + 1
+                            InlineJumpPointer.reset()
+                        except IndexError:
+                            raise SyntaxError('{}'.format(name_type))
+
+                        if next_name_type == '=':  # variable assignment
+
+                            InlineJumpPointer.reset()
+
+                            expr = ''  # <expr>
+
+                            while InlineLexerPointer.pos + InlineJumpPointer.jump < len(line):
+                                expr += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
+                                InlineJumpPointer.advance()
+
+                            InlineLexerPointer.pos += InlineJumpPointer.jump + 1
+                            InlineJumpPointer.reset()
+                            LineTokenizedResult.append({'type': 'var_assign', 'name_type': name_type, 'expr': ExprLexer(expr)})
+
+                        else:
+                            pass
 
             else:
                 word += char
+
+
+
 
             InlineLexerPointer.advance()
 
@@ -152,7 +197,12 @@ def lex(code):
     return Tokenized
 
 
-print(lex('var some_kind_of_a_random_number{12 + 3/2 + 3}\nvar b{1.2 * 3/1.5**2||2}\na = 12+3/2'))
+with open('test', 'r', encoding='UTF-8') as file:
+    Code = ''.join(file.readlines())
+
+print(lex(Code))
+
+
 
 
 

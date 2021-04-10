@@ -1,3 +1,5 @@
 arguments = [
-    'var'
+    'var',
+    'class',
+    'meth'
 ]
