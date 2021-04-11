@@ -1,16 +1,14 @@
-class human{
-    var name{1}
-    var age{15}
-
-    class heart {
-
-        var bloodrate{70}
-
-        var V{10}
-
-    }
+class human {
 
 }
+
+
+class ggh{var k{45}}
+
+
+class kjh{k = k / 2 + 9 * 5}
+
+
 
 class jack {
     var r{1}

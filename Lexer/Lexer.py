@@ -122,21 +122,31 @@ def lex(code):
                         except IndexError:  # when no '{'
                             raise SyntaxError("Missing '{'")
 
-                        InlineJumpPointer.reset()
+                        if line[-1] == '}':
+                            InlineJumpPointer.reset()
 
-                        attributes = '\n'
-                        LineJumpPointer = JumpPointer()
-
-                        try:
-                            while code[LineLexerPointer.pos + LineJumpPointer.jump - 1] != '}':  # just to check for '}'
-                                attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
-                                LineJumpPointer.advance()
-                            LineLexerPointer.pos += LineJumpPointer.jump - 1  # because jump once at end of line
-                            InlineLexerPointer.reset()
+                            while InlineLexerPointer.pos + InlineJumpPointer.jump < len(line) - 1:
+                                attributes += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
+                                InlineJumpPointer.advance()
+                            InlineLexerPointer.pos += InlineJumpPointer.jump + 1
                             LineTokenizedResult.append({'type': 'class', 'name_type': name_type, 'attributes': lex(attributes)})
-                            break
-                        except IndexError:
-                            raise SyntaxError("Missing '}'")
+
+                        else:
+                            InlineJumpPointer.reset()
+
+                            attributes = '\n'
+                            LineJumpPointer = JumpPointer()
+
+                            try:
+                                while code[LineLexerPointer.pos + LineJumpPointer.jump - 1] != '}':  # just to check for '}'
+                                    attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
+                                    LineJumpPointer.advance()
+                                LineLexerPointer.pos += LineJumpPointer.jump - 1  # because jump once at end of line
+                                InlineLexerPointer.reset()
+                                LineTokenizedResult.append({'type': 'class', 'name_type': name_type, 'attributes': lex(attributes)})
+                                break
+                            except IndexError:
+                                raise SyntaxError("Missing '}'")
 
                     elif word == 'meth':  # method declare
                         pass
