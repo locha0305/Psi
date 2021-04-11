@@ -4,7 +4,6 @@ class AddTri {
     # method for adding three numbers
 
     meth add : give(recv N{}; recv P{}; recv K{}) {
-        var{34}
         var Res{0}
 
         Res = N + P + K
@@ -12,6 +11,7 @@ class AddTri {
         return{Res}
     }
 }
+
 
 
 
