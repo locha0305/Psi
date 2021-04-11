@@ -46,6 +46,17 @@ def ExprLexer(expr):
     return Tokenized
 
 
+def LineNotComment(line):
+    line.split(' ')
+    for char in line:
+        if char == '':
+            pass
+        elif char == '#':
+            return False
+
+    return True
+
+
 def lex(code):
     Tokenized = []  # lex result
     code = code.split('\n')  # split lines
@@ -71,7 +82,7 @@ def lex(code):
 
             char = line[InlineLexerPointer.pos]  # set char
 
-            if char in Grammer.Identifier.identifier:  # when certain argument
+            if char in Grammer.Identifier.identifier and not(char == '#'):  # when certain argument and not comment
 
                 if word in Grammer.Arguments.arguments:
 
@@ -94,6 +105,9 @@ def lex(code):
                             raise SyntaxError("Missing '{'")
 
                         InlineJumpPointer.reset()
+
+                        if name_type == '':
+                            name_type = '__anon__'
 
                         try:
                             while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != '}':
@@ -122,6 +136,9 @@ def lex(code):
                             InlineLexerPointer.pos += InlineJumpPointer.jump + 1  # to avoid adding '{'
                         except IndexError:  # when no '{'
                             raise SyntaxError("Missing '{'")
+
+                        if name_type == '':
+                            raise SyntaxError("Anonymous statement is not available for 'recv'")
 
                         InlineJumpPointer.reset()
 
@@ -171,7 +188,8 @@ def lex(code):
 
                             try:
                                 while code[LineLexerPointer.pos + LineJumpPointer.jump - 1] != '}':  # just to check for '}'
-                                    attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
+                                    if LineNotComment(code[LineLexerPointer.pos + LineJumpPointer.jump]):
+                                        attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
                                     LineJumpPointer.advance()
                                 LineLexerPointer.pos += LineJumpPointer.jump - 1  # because jump once at end of line
                                 InlineLexerPointer.reset()
@@ -245,7 +263,8 @@ def lex(code):
 
                             try:
                                 while code[LineLexerPointer.pos + LineJumpPointer.jump - 1] != '}':  # just to check for '}'
-                                    attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
+                                    if LineNotComment(code[LineLexerPointer.pos + LineJumpPointer.jump]):
+                                        attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
                                     LineJumpPointer.advance()
                                 LineLexerPointer.pos += LineJumpPointer.jump - 1  # because jump once at end of line
                                 InlineLexerPointer.reset()
@@ -307,8 +326,9 @@ def lex(code):
                             LineTokenizedResult.append({'type': 'var_assign', 'name_type': name_type, 'expr': ExprLexer(expr)})
 
                         else:
-                            pass
-
+                            raise SyntaxError('{}'.format(name_type))
+            elif char == '#':
+                break
             else:
                 word += char
 

@@ -35,8 +35,8 @@
 <decider> ::=
 <method> |
 <class> |
-"give" |
 "get" |
+"call" |
 "statement" |
 
 <var> ::= "var" <name_type>"{"<expr>*"}" | "var""{"<expr>*"}"
@@ -80,4 +80,3 @@
 <attributes>*
 "}"
 
-<call> ::= "call"":"<decider>":"<decider>"("<attributes>*")""{""}"
