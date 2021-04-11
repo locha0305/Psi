@@ -105,7 +105,38 @@ def lex(code):
 
                         LineTokenizedResult.append({'type': 'var', 'name_type': name_type, 'expr': ExprLexer(expr)})
 
+                    elif word == 'recv':  # variable statement
+
+                        word = ''  # reset word
+                        name_type = ''  # <name_type>
+                        expr = ''  # <expr>
+
+                        InlineJumpPointer.reset()  # reset jump
+                        InlineLexerPointer.advance()  # to avoid adding ' '
+
+                        try:
+                            while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != '{':
+                                if not(line[InlineLexerPointer.pos + InlineJumpPointer.jump] == ' '):
+                                    name_type += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
+                                InlineJumpPointer.advance()
+                            InlineLexerPointer.pos += InlineJumpPointer.jump + 1  # to avoid adding '{'
+                        except IndexError:  # when no '{'
+                            raise SyntaxError("Missing '{'")
+
+                        InlineJumpPointer.reset()
+
+                        try:
+                            while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != '}':
+                                expr += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
+                                InlineJumpPointer.advance()
+                            InlineLexerPointer.pos += InlineJumpPointer.jump + 1
+                        except IndexError:  # when no '{'
+                            raise SyntaxError("Missing '}'")
+
+                        LineTokenizedResult.append({'type': 'recv', 'name_type': name_type, 'expr': ExprLexer(expr)})
+
                     elif word == 'class':  # base class declare
+
                         word = ''
                         name_type = ''
                         attributes = ''
@@ -122,7 +153,7 @@ def lex(code):
                         except IndexError:  # when no '{'
                             raise SyntaxError("Missing '{'")
 
-                        if line[-1] == '}':
+                        if line[-1] == '}':  # class declare in one line
                             InlineJumpPointer.reset()
 
                             while InlineLexerPointer.pos + InlineJumpPointer.jump < len(line) - 1:
@@ -132,6 +163,7 @@ def lex(code):
                             LineTokenizedResult.append({'type': 'class', 'name_type': name_type, 'attributes': lex(attributes)})
 
                         else:
+
                             InlineJumpPointer.reset()
 
                             attributes = '\n'
@@ -149,7 +181,95 @@ def lex(code):
                                 raise SyntaxError("Missing '}'")
 
                     elif word == 'meth':  # method declare
-                        pass
+
+                        word = ''
+                        name_type = ''
+                        attributes = ''
+                        arguments = ''
+
+                        InlineJumpPointer.reset()
+                        InlineLexerPointer.advance()
+
+                        try:
+                            while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != ':' and line[InlineLexerPointer.pos + InlineJumpPointer.jump] != '{':
+                                if not (line[InlineLexerPointer.pos + InlineJumpPointer.jump] == ' '):
+                                    name_type += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
+                                InlineJumpPointer.advance()
+
+                        except IndexError:  # when no '{'
+                            raise SyntaxError("Missing '{' or ':'")
+
+                        if line[InlineLexerPointer.pos + InlineJumpPointer.jump] == ':':  # if decider
+                            InlineLexerPointer.pos += InlineJumpPointer.jump + 1
+                            InlineJumpPointer.reset()
+
+                            decider = ''
+
+                            try:
+                                while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != '(':
+                                    if not (line[InlineLexerPointer.pos + InlineJumpPointer.jump] == ' '):
+                                        decider += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
+                                    InlineJumpPointer.advance()
+                                InlineLexerPointer.pos += InlineJumpPointer.jump + 1
+                                if decider != 'give':
+                                    raise SyntaxError("Invalid decider '{}'".format(decider))
+                                else:
+                                    InlineJumpPointer.reset()
+                                    try:
+                                        while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != ')':
+                                            arguments += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
+                                            InlineJumpPointer.advance()
+                                        InlineLexerPointer.pos += InlineJumpPointer.jump + 1
+                                    except IndexError:
+                                        raise SyntaxError("Missing ')'")
+
+                            except IndexError:
+                                raise SyntaxError("Missing '('")
+
+                        if line[-1] == '}':
+                            InlineJumpPointer.reset()
+
+                            while InlineLexerPointer.pos + InlineJumpPointer.jump < len(line) - 1:
+                                attributes += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
+                                InlineJumpPointer.advance()
+                            InlineLexerPointer.pos += InlineJumpPointer.jump + 1
+                            LineTokenizedResult.append(
+                                {'type': 'meth', 'name_type': name_type, 'give': lex('\n'.join(arguments.split(';'))), 'attributes': lex(attributes)})
+
+                        else:
+
+                            InlineJumpPointer.reset()
+
+                            attributes = '\n'
+                            LineJumpPointer = JumpPointer()
+
+                            try:
+                                while code[LineLexerPointer.pos + LineJumpPointer.jump - 1] != '}':  # just to check for '}'
+                                    attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
+                                    LineJumpPointer.advance()
+                                LineLexerPointer.pos += LineJumpPointer.jump - 1  # because jump once at end of line
+                                InlineLexerPointer.reset()
+                                LineTokenizedResult.append(
+                                    {'type': 'meth', 'name_type': name_type, 'give': lex(arguments), 'attributes': lex(attributes)})
+                                break
+                            except IndexError:
+                                raise SyntaxError("Missing '}'")
+
+                    elif word == 'return':
+                        InlineJumpPointer.reset()
+                        InlineJumpPointer.advance()
+                        expr = ''
+
+                        try:
+                            while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != '}':
+                                expr += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
+                                InlineJumpPointer.advance()
+                            InlineLexerPointer.pos += InlineJumpPointer.jump + 1
+
+                        except IndexError:
+                            raise SyntaxError("Missing '}'")
+
+                        LineTokenizedResult.append({'type': 'return', 'expr': ExprLexer(expr)})
 
                 else:  # variable assignment/class declare
 
@@ -191,9 +311,6 @@ def lex(code):
 
             else:
                 word += char
-
-
-
 
             InlineLexerPointer.advance()
 

@@ -1,5 +1,7 @@
 arguments = [
     'var',
+    'recv',
     'class',
-    'meth'
+    'meth',
+    'return'
 ]

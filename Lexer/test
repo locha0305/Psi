@@ -1,18 +1,15 @@
-class human {
+class AddTri {
+    meth add : give(recv N{}; recv P{}; recv K{}) {
+        var Res{}
 
+        Res = N + P + K
+
+        return{Res}
+    }
 }
 
 
-class ggh{var k{45}}
 
 
-class kjh{k = k / 2 + 9 * 5}
-
-
-
-class jack {
-    var r{1}
-
-    var p{r + 2}
-}
+meth lambda:give(recv x{}){return{2 * x}}
 

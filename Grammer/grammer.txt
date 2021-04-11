@@ -38,7 +38,6 @@
 "give" |
 "get" |
 "statement" |
-"return" |
 
 <var> ::= "var" <name_type>"{"<expr>*"}" | "var""{"<expr>*"}"
 <recv> ::= "recv" <name_type>"{""}"
@@ -49,34 +48,36 @@
 "}" |
 <super>"{"<attributes>*"}"
 
-<method> ::= "meth" <name_type>":"<decider>"{"<attributes>*"}""{"
+<method> ::= "meth" <name_type>":"<decider>"("<attributes>*")""{"
 <attributes>*
 "}" |
-<method>":"<decider>"{"<attributes>*"}""{"
+<method>":"<decider>"("<attributes>*")""{"
 <attributes>*
 "}" |
 <method>"{"
 <attributes>*
 "}"
 
-<if> ::= "if" <name_type>":"<decider>"{"<expr>"}""{"
+<return> ::= "return""{"<expr>"}"
+
+<if> ::= "if" <name_type>":"<decider>"("<expr>")""{"
 <attributes>*
 "}" |
-"if"":"<decider>"{"<expr>"}""{"
+"if"":"<decider>"("<expr>")""{"
 <attributes>*
 "}" |
 "if""{"
 <attributes>*
 "}"
 
-<while> ::= "while" <name_type>":"<decider>"{"<expr>"}""{"
+<while> ::= "while" <name_type>":"<decider>"("<expr>")""{"
 <attributes>*
 "}" |
-"while"":"<decider>"{"<expr>"}""{"
+"while"":"<decider>"("<expr>")""{"
 <attributes>*
 "}" |
 "while""{"
 <attributes>*
 "}"
 
-<call> ::= "call"":"<decider>":"<decider>"{"<attributes>*"}""{""}"
+<call> ::= "call"":"<decider>":"<decider>"("<attributes>*")""{""}"
