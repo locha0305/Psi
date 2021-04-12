@@ -74,7 +74,6 @@ def lex(code):
 
         word = ''  # reset word
 
-        LineTokenizedResult = []  # each tokenized result for line
 
         line = code[LineLexerPointer.pos]  # set line
 
@@ -117,7 +116,7 @@ def lex(code):
                         except IndexError:  # when no '{'
                             raise SyntaxError("Missing '}'")
 
-                        LineTokenizedResult.append({'type': 'var', 'name_type': name_type, 'expr': ExprLexer(expr)})
+                        Tokenized.append({'type': 'var', 'name_type': name_type, 'expr': ExprLexer(expr)})
 
                     elif word == 'recv':  # variable statement
 
@@ -150,7 +149,7 @@ def lex(code):
                         except IndexError:  # when no '{'
                             raise SyntaxError("Missing '}'")
 
-                        LineTokenizedResult.append({'type': 'recv', 'name_type': name_type, 'expr': ExprLexer(expr)})
+                        Tokenized.append({'type': 'recv', 'name_type': name_type, 'expr': ExprLexer(expr)})
 
                     elif word == 'class':  # base class declare
 
@@ -177,7 +176,7 @@ def lex(code):
                                 attributes += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
                                 InlineJumpPointer.advance()
                             InlineLexerPointer.pos += InlineJumpPointer.jump + 1
-                            LineTokenizedResult.append({'type': 'class', 'name_type': name_type, 'attributes': lex(attributes)})
+                            Tokenized.append({'type': 'class', 'name_type': name_type, 'attributes': lex(attributes)})
 
                         else:
 
@@ -193,7 +192,7 @@ def lex(code):
                                     LineJumpPointer.advance()
                                 LineLexerPointer.pos += LineJumpPointer.jump - 1  # because jump once at end of line
                                 InlineLexerPointer.reset()
-                                LineTokenizedResult.append({'type': 'class', 'name_type': name_type, 'attributes': lex(attributes)})
+                                Tokenized.append({'type': 'class', 'name_type': name_type, 'attributes': lex(attributes)})
                                 break
                             except IndexError:
                                 raise SyntaxError("Missing '}'")
@@ -251,7 +250,7 @@ def lex(code):
                                 attributes += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
                                 InlineJumpPointer.advance()
                             InlineLexerPointer.pos += InlineJumpPointer.jump + 1
-                            LineTokenizedResult.append(
+                            Tokenized.append(
                                 {'type': 'meth', 'name_type': name_type, 'give': lex('\n'.join(arguments.split(';'))), 'attributes': lex(attributes)})
 
                         else:
@@ -268,7 +267,7 @@ def lex(code):
                                     LineJumpPointer.advance()
                                 LineLexerPointer.pos += LineJumpPointer.jump - 1  # because jump once at end of line
                                 InlineLexerPointer.reset()
-                                LineTokenizedResult.append(
+                                Tokenized.append(
                                     {'type': 'meth', 'name_type': name_type, 'give': lex(arguments), 'attributes': lex(attributes)})
                                 break
                             except IndexError:
@@ -288,7 +287,7 @@ def lex(code):
                         except IndexError:
                             raise SyntaxError("Missing '}'")
 
-                        LineTokenizedResult.append({'type': 'return', 'expr': ExprLexer(expr)})
+                        Tokenized.append({'type': 'return', 'expr': ExprLexer(expr)})
 
                 else:  # variable assignment/class declare
 
@@ -323,7 +322,7 @@ def lex(code):
 
                             InlineLexerPointer.pos += InlineJumpPointer.jump + 1
                             InlineJumpPointer.reset()
-                            LineTokenizedResult.append({'type': 'var_assign', 'name_type': name_type, 'expr': ExprLexer(expr)})
+                            Tokenized.append({'type': 'var_assign', 'name_type': name_type, 'expr': ExprLexer(expr)})
 
                         else:
                             raise SyntaxError('{}'.format(name_type))
@@ -333,8 +332,6 @@ def lex(code):
                 word += char
 
             InlineLexerPointer.advance()
-
-        Tokenized.append(LineTokenizedResult)
 
         LineLexerPointer.advance()
 
