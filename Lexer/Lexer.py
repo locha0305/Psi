@@ -61,6 +61,19 @@ def lex(code):
     Tokenized = []  # lex result
     code = code.split('\n')  # split lines
 
+    newCode = []
+
+    for line in code:
+        lineWithoutComment = ''
+        for char in line:
+            if char == '#':
+                break
+            else:
+                lineWithoutComment += char
+        newCode.append(lineWithoutComment)
+
+    code = newCode
+
     LineLexerPointer = LexerPointer()  # new line LexerPointer object
     InlineLexerPointer = LexerPointer()  # new inline LexerPointer object
     InlineJumpPointer = JumpPointer()  # new inline JumpPointer object
@@ -73,7 +86,6 @@ def lex(code):
         InlineJumpPointer.reset()  # reset pointer
 
         word = ''  # reset word
-
 
         line = code[LineLexerPointer.pos]  # set line
 
@@ -187,8 +199,7 @@ def lex(code):
 
                             try:
                                 while code[LineLexerPointer.pos + LineJumpPointer.jump - 1] != '}':  # just to check for '}'
-                                    if LineNotComment(code[LineLexerPointer.pos + LineJumpPointer.jump]):
-                                        attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
+                                    attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
                                     LineJumpPointer.advance()
                                 LineLexerPointer.pos += LineJumpPointer.jump - 1  # because jump once at end of line
                                 InlineLexerPointer.reset()
@@ -262,8 +273,7 @@ def lex(code):
 
                             try:
                                 while code[LineLexerPointer.pos + LineJumpPointer.jump - 1] != '}':  # just to check for '}'
-                                    if LineNotComment(code[LineLexerPointer.pos + LineJumpPointer.jump]):
-                                        attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
+                                    attributes += code[LineLexerPointer.pos + LineJumpPointer.jump] + '\n'
                                     LineJumpPointer.advance()
                                 LineLexerPointer.pos += LineJumpPointer.jump - 1  # because jump once at end of line
                                 InlineLexerPointer.reset()
@@ -326,8 +336,6 @@ def lex(code):
 
                         else:
                             raise SyntaxError('{}'.format(name_type))
-            elif char == '#':
-                break
             else:
                 word += char
 
