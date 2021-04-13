@@ -19,6 +19,8 @@ class AddTri {
 
 }
 
+var x{3 + 1}
+
 
 
 

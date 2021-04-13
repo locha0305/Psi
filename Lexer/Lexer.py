@@ -117,18 +117,18 @@ def lex(code):
 
                         InlineJumpPointer.reset()
 
-                        if name_type == '':
-                            name_type = '__anon__'
-
-                        try:
-                            while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != '}':
+                        if line[-1] == '}':
+                            while InlineLexerPointer.pos + InlineJumpPointer.jump < len(line) - 1:
                                 expr += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
                                 InlineJumpPointer.advance()
+
                             InlineLexerPointer.pos += InlineJumpPointer.jump + 1
-                        except IndexError:  # when no '{'
+
+                        else:
                             raise SyntaxError("Missing '}'")
 
                         Tokenized.append({'type': 'var', 'name_type': name_type, 'expr': ExprLexer(expr)})
+
 
                     elif word == 'recv':  # variable statement
 
@@ -288,13 +288,13 @@ def lex(code):
                         InlineJumpPointer.advance()
                         expr = ''
 
-                        try:
-                            while line[InlineLexerPointer.pos + InlineJumpPointer.jump] != '}':
+                        if line[-1] == '}':
+                            while InlineLexerPointer.pos + InlineJumpPointer.jump < len(line) - 1:
                                 expr += line[InlineLexerPointer.pos + InlineJumpPointer.jump]
                                 InlineJumpPointer.advance()
                             InlineLexerPointer.pos += InlineJumpPointer.jump + 1
 
-                        except IndexError:
+                        else:
                             raise SyntaxError("Missing '}'")
 
                         Tokenized.append({'type': 'return', 'expr': ExprLexer(expr)})
